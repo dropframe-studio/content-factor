@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "start": "pnpm build && pipeline",
+    "start": "pnpm build && pnpm pipeline",
     "capture": "node dist/pipeline/capture.js",
     "transform": "node dist/pipeline/transform.js",
     "publish": "node dist/pipeline/publish.js",

@@ -72,33 +72,35 @@ export function captureCommit(): Artifact {
 
 export async function runCapturePipeline() {
   // Check if the script is being run directly (not imported)
-  if (import.meta.url === `file://${process.argv[1]}`) {
-    (async () => {
-      try {
-        const artifact = captureCommit();
+  const artifact = captureCommit();
 
-        // Define the output path
-        const artifactsDir = join(process.cwd(), "data", "artifacts");
-        const outPath = join(artifactsDir, `${artifact.id}.json`);
+  try {
 
-        // Ensure the directory exists
-        mkdirSync(artifactsDir, { recursive: true });
+    // Define the output path
+    const artifactsDir = join(process.cwd(), "data", "artifacts");
+    const outPath = join(artifactsDir, `${artifact.id}.json`);
 
-        // Write the artifact data
-        writeFileSync(outPath, JSON.stringify(artifact, null, 2));
+    // Ensure the directory exists
+    mkdirSync(artifactsDir, { recursive: true });
 
-        console.log(`\n======================================================`);
-        console.log(`✅ Artifact Captured`);
-        console.log(`ID: ${artifact.id}`);
-        console.log(`Type: ${artifact.type}`);
-        console.log(`Source Ref: ${artifact.metadata.sourceRef}`);
-        console.log(`File: ${outPath}`);
-        console.log(`======================================================\n`);
+    // Write the artifact data
+    writeFileSync(outPath, JSON.stringify(artifact, null, 2));
 
-      } catch (error) {
-        console.error("\n❌ CAPTURE FAILED:", error);
-        process.exit(1);
-      }
-    })();
+    console.log(`\n======================================================`);
+    console.log(`✅ Artifact Captured`);
+    console.log(`ID: ${artifact.id}`);
+    console.log(`Type: ${artifact.type}`);
+    console.log(`Source Ref: ${artifact.metadata.sourceRef}`);
+    console.log(`File: ${outPath}`);
+    console.log(`======================================================\n`);
+
+  } catch (error) {
+    console.error("\n❌ CAPTURE FAILED:", error);
+    process.exit(1);
   }
+};
+
+// CLI entrypoint (ESM style)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runCapturePipeline();
 }
