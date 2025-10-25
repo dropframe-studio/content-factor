@@ -5,15 +5,19 @@
   "main": "pipeline/index.ts",
   "type": "module",
   "scripts": {
-    "start": "pnpm pipeline",
-    "capture": "ts-node pipeline/capture.ts",
-    "transform": "ts-node pipeline/transform.ts",
-    "publish": "ts-node pipeline/publish.ts",
-    "measure": "ts-node pipeline/measure.ts",
+    "build": "rm -rf dist && tsc",
+    "start": "pnpm build && pipeline",
+    "capture": "node dist/pipeline/capture.js",
+    "transform": "node dist/pipeline/transform.js",
+    "publish": "node dist/pipeline/publish.js",
+    "measure": "node dist/pipeline/measure.js",
     "pipeline": "echo 'Running pipeline...' && pnpm capture && pnpm transform && pnpm publish && pnpm measure && echo 'Pipeline complete.'"
   },
   "dependencies": {
-    "typescript": "^5.0.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1"
   }
 }

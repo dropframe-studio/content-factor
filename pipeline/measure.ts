@@ -1,49 +1,51 @@
-import { readdirSync, statSync, writeFileSync, mkdirSync } from "fs";
+// pipeline/measure.ts
+
+import { readdirSync } from "fs";
 import { join } from "path";
 
-export interface Metrics {
-  totalArtifacts: number;
-  totalTransformed: number;
-  totalPublished: number;
-  lastArtifact?: string;
-  lastUpdated?: string;
-}
-
-export function measurePipeline(): Metrics {
-  const artifactsDir = join(process.cwd(), "data/artifacts");
-  const transformedDir = join(process.cwd(), "data/transformed");
+/**
+ * Executes the measurement step: reads published files and logs key metrics.
+ * This is currently a stub for future integration with analytics APIs (e.g., social platform stats).
+ */
+export async function runMeasurementPipeline() {
   const publishedDir = join(process.cwd(), "data/published");
+  
+  try {
+    // 1. Check for final published output (Markdown files)
+    const publishedMarkdownFiles = readdirSync(publishedDir).filter(f => f.endsWith(".md"));
 
-  const artifacts = readdirSync(artifactsDir).filter(f => f.endsWith(".json"));
-  const transformed = readdirSync(transformedDir).filter(f => f.endsWith(".json"));
-  const published = readdirSync(publishedDir).filter(f => f.endsWith(".json"));
+    console.log(`\n======================================================`);
+    console.log(`📈 Running Measurement on ${publishedMarkdownFiles.length} Published File(s)`);
+    console.log(`======================================================`);
 
-  const latest = artifacts
-    .map(f => ({
-      file: f,
-      time: statSync(join(artifactsDir, f)).mtime.getTime()
-    }))
-    .sort((a, b) => b.time - a.time)[0];
+    if (publishedMarkdownFiles.length === 0) {
+      console.log("🟡 No final Markdown files found in data/published/ to measure.");
+      return;
+    }
 
-  const metrics: Metrics = {
-    totalArtifacts: artifacts.length,
-    totalTransformed: transformed.length,
-    totalPublished: published.length,
-    lastArtifact: latest?.file,
-    lastUpdated: latest ? new Date(latest.time).toISOString() : undefined
-  };
+    // 2. Log confirmation of published content
+    console.log("Found the following content ready for distribution:");
+    publishedMarkdownFiles.forEach(file => {
+      // Example: Logging file size or other metadata here in the future
+      console.log(`  - ${file}`);
+    });
+    
+    // In a future state, this section would include API calls to update
+    // metrics in the dashboard database based on the 'artifactId' parsed from the filename.
+    
+    console.log(`\nMeasurement complete. The system is ready for visibility tracking.\n`);
 
-  // Save metrics snapshot
-  const outDir = join(process.cwd(), "data/metrics");
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "metrics.json"), JSON.stringify(metrics, null, 2));
-
-  return metrics;
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      console.error(`❌ ERROR: Published directory not found. Please run 'pnpm publish' first.`);
+    } else {
+      console.error("❌ MEASUREMENT FAILED:", error);
+    }
+    process.exit(1);
+  }
 }
 
-// CLI entrypoint
-if (require.main === module) {
-  const metrics = measurePipeline();
-  console.log("📈 Pipeline Metrics:");
-  console.table(metrics);
+// CLI entrypoint (ESM style)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runMeasurementPipeline();
 }
