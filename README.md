@@ -1,7 +1,5 @@
 # 📝 Content Factor
 
-# 📝 Content Factor
-
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/dropframe-studio/content-factor/ci.yml?branch=main)](../../actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
