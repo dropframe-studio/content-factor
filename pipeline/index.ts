@@ -1,6 +1,6 @@
 // pipeline/index.ts
 
-import { runCapturePipeline } from './capture.js';
+import { runCapturePipeline } from './capture/commit.js';
 import { runTransformPipeline } from './transform.js';
 import { runPublishPipeline } from './publish.js';
 import { runMeasurementPipeline } from './measure.js';

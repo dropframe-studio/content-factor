@@ -65,16 +65,37 @@ function renderBuildLog(content: any): string {
 
 /**
  * Renders a Progress Snapshot template
+ * Handles both retro format (flattened) and commit format (nested ecosystemProgress)
  */
 function renderProgressSnapshot(content: any): string {
   let md = '';
   
-  if (content.ecosystemProgress && Array.isArray(content.ecosystemProgress)) {
+  // Retro format (flattened with title)
+  if (content.title) {
+    md += `## ${content.title}\n\n`;
+  }
+  
+  // Handle either flattened whatShipped or nested ecosystemProgress
+  if (content.whatShipped) {
+    md += `## What I Shipped\n${content.whatShipped}\n\n`;
+  } else if (content.ecosystemProgress && Array.isArray(content.ecosystemProgress)) {
     md += `## Ecosystem Progress\n\n`;
     for (const item of content.ecosystemProgress) {
       md += `### ${item.project}\n`;
       md += `${item.progress}\n\n`;
     }
+  }
+
+  if (content.whatWentWell) {
+    md += `## What Went Well\n${content.whatWentWell}\n\n`;
+  }
+
+  if (content.whatWasHard) {
+    md += `## What Was Hard\n${content.whatWasHard}\n\n`;
+  }
+
+  if (content.whatLearned) {
+    md += `## What I Learned\n${content.whatLearned}\n\n`;
   }
 
   if (content.connections) {

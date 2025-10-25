@@ -7,11 +7,12 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "start": "pnpm build && pnpm pipeline",
-    "capture": "node dist/pipeline/capture.js",
+    "capture:commit": "node dist/pipeline/capture/commit.js",
+    "capture:retro": "node dist/pipeline/capture/retro.js",
     "transform": "node dist/pipeline/transform.js",
     "publish-content": "node dist/pipeline/publish.js",
     "measure": "node dist/pipeline/measure.js",
-    "pipeline": "echo 'Running pipeline...' && pnpm capture && pnpm transform && pnpm publish-content && pnpm measure && echo 'Pipeline complete.'"
+    "pipeline": "echo 'Running pipeline...' && pnpm capture:commit && pnpm transform && pnpm publish-content && pnpm measure && echo 'Pipeline complete.'"
   },
   "dependencies": {
     "ts-node": "^10.9.1",

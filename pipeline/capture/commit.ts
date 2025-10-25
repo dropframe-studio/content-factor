@@ -3,7 +3,7 @@
 import { execSync } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "./artifact.js"; // Note the .js extension for ESM imports
+import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js"; // Note the .js extension for ESM imports
 
 /**
  * Executes a git log command to fetch information about the last commit.
