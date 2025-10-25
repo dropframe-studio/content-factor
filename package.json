@@ -1,0 +1,19 @@
+{
+  "name": "content-factor",
+  "version": "1.0.0",
+  "description": "The measurable, automated pipeline for content visibility.",
+  "main": "pipeline/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "pnpm pipeline",
+    "capture": "ts-node pipeline/capture.ts",
+    "transform": "ts-node pipeline/transform.ts",
+    "publish": "ts-node pipeline/publish.ts",
+    "measure": "ts-node pipeline/measure.ts",
+    "pipeline": "echo 'Running pipeline...' && pnpm capture && pnpm transform && pnpm publish && pnpm measure && echo 'Pipeline complete.'"
+  },
+  "dependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.1"
+  }
+}
