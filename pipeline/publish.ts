@@ -53,7 +53,10 @@ export async function runPublishPipeline() {
   }
 }
 
-// CLI entrypoint (ESM style)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runPublishPipeline();
-}
+// // CLI entrypoint (ESM style)
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   runPublishPipeline();
+// }
+
+
+runPublishPipeline();

@@ -45,7 +45,9 @@ export async function runMeasurementPipeline() {
   }
 }
 
-// CLI entrypoint (ESM style)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runMeasurementPipeline();
-}
+// // CLI entrypoint (ESM style)
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   runMeasurementPipeline();
+// }
+
+runMeasurementPipeline();

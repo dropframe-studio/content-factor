@@ -2,11 +2,47 @@
 
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { Artifact } from './artifact.js'; // Import the schema
-import { progressSnapshotTemplate } from '../templates/progressSnapshot.js'; // Import the template
+import { Artifact, ArtifactType } from './artifact.js';
 
-// In a real system, you would import ALL templates and use a mapping function.
-// For now, we only import the template we need for demonstration.
+// Import all templates
+import { buildLogTemplate } from '../templates/buildLog.js';
+import { progressSnapshotTemplate } from '../templates/progressSnapshot.js';
+import { projectExplainerTemplate } from '../templates/projectExplainer.js';
+import { systemObservationTemplate } from '../templates/systemObservation.js';
+import { teachingMomentTemplate } from '../templates/teachingMoment.js';
+
+/**
+ * Template function type definition
+ */
+type TemplateFunction = (artifact: Artifact) => any;
+
+/**
+ * Map artifact types to their corresponding template functions
+ */
+const TEMPLATE_MAP: Record<ArtifactType, TemplateFunction> = {
+  RAW_COMMIT: buildLogTemplate,
+  BUILD_LOG: buildLogTemplate,
+  PROGRESS_SNAPSHOT: progressSnapshotTemplate,
+  PROJECT_EXPLAINER: projectExplainerTemplate,
+  SYSTEM_OBSERVATION: systemObservationTemplate,
+  TEACHING_MOMENT: teachingMomentTemplate,
+};
+
+/**
+ * Applies the appropriate template to an artifact based on its type.
+ * @param artifact The artifact to transform
+ * @returns The structured content object
+ */
+function applyTemplate(artifact: Artifact): any {
+  const templateFn = TEMPLATE_MAP[artifact.type];
+  
+  if (!templateFn) {
+    console.warn(`⚠️  No template found for artifact type: ${artifact.type}. Skipping.`);
+    return null;
+  }
+  
+  return templateFn(artifact);
+}
 
 /**
  * Executes the transformation step: loads artifacts, runs them through templates,
@@ -38,26 +74,26 @@ export async function runTransformPipeline() {
       
       let artifact: Artifact;
       try {
-        // Parse the raw artifact JSON
         artifact = JSON.parse(artifactData);
       } catch (e) {
         console.error(`❌ ERROR: Failed to parse JSON for artifact: ${fileName}`);
         continue;
       }
 
-      // 3. Select Template and Execute Transformation
-      // In this example, we hardcode the use of the Progress Snapshot template.
-      // A full system would use artifact.transformers or artifact.type to select.
-      const transformedContent = progressSnapshotTemplate(artifact);
+      // 3. Apply the appropriate template based on artifact type
+      const transformedContent = applyTemplate(artifact);
+      
+      if (!transformedContent) {
+        continue; // Skip if no template was found
+      }
 
-      // 4. Save the Output
-      // Use the artifact ID and the template type to name the published content file.
+      // 4. Save the output
       const outputFileName = `${artifact.id}-${transformedContent.type}.json`;
       const outputPath = join(publishedDir, outputFileName);
       
       writeFileSync(outputPath, JSON.stringify(transformedContent, null, 2));
 
-      console.log(`  ✅ Transformed ${artifact.id} using ${transformedContent.type} → ${outputFileName}`);
+      console.log(`  ✅ Transformed ${artifact.id} (${artifact.type}) → ${transformedContent.type} → ${outputFileName}`);
     }
     
     console.log(`\nTransformation complete. Published content is in ${publishedDir}/\n`);
@@ -72,7 +108,5 @@ export async function runTransformPipeline() {
   }
 }
 
-// Check if the script is being run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runTransformPipeline();
-}
+// Always run when this file executes
+runTransformPipeline();

@@ -101,6 +101,8 @@ export async function runCapturePipeline() {
 };
 
 // CLI entrypoint (ESM style)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runCapturePipeline();
-}
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   runCapturePipeline();
+// }
+
+runCapturePipeline();

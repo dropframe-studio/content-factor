@@ -9,9 +9,9 @@
     "start": "pnpm build && pnpm pipeline",
     "capture": "node dist/pipeline/capture.js",
     "transform": "node dist/pipeline/transform.js",
-    "publish": "node dist/pipeline/publish.js",
+    "publish-content": "node dist/pipeline/publish.js",
     "measure": "node dist/pipeline/measure.js",
-    "pipeline": "echo 'Running pipeline...' && pnpm capture && pnpm transform && pnpm publish && pnpm measure && echo 'Pipeline complete.'"
+    "pipeline": "echo 'Running pipeline...' && pnpm capture && pnpm transform && pnpm publish-content && pnpm measure && echo 'Pipeline complete.'"
   },
   "dependencies": {
     "ts-node": "^10.9.1",
