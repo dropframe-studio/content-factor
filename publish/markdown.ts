@@ -148,6 +148,15 @@ function renderSystemObservation(content: any): string {
     md += `## Observation\n${content.observation}\n\n`;
   }
   
+  // If this is a link/reference, show the URL
+  if (content.url) {
+    md += `**Source:** [${content.url}](${content.url})\n\n`;
+  }
+  
+  if (content.notes) {
+    md += `## Notes\n${content.notes}\n\n`;
+  }
+  
   if (content.pattern) {
     md += `## Pattern\n${content.pattern}\n\n`;
   }
