@@ -18,19 +18,24 @@ function App() {
 
   async function loadArtifacts() {
     try {
-      const response = await fetch('/api/artifacts')
+      // Fetch from real API
+      const response = await fetch('http://localhost:3001/api/artifacts')
       
       if (!response.ok) {
-        const mockArtifacts = generateMockArtifacts()
-        setArtifacts(mockArtifacts)
-        setPublishedFiles(generateMockPublishedFiles(mockArtifacts))
-      } else {
-        const data = await response.json()
-        setArtifacts(data.artifacts)
-        setPublishedFiles(data.published)
+        throw new Error(`API returned ${response.status}`)
       }
+      
+      const data = await response.json()
+      setArtifacts(data.artifacts)
+      setPublishedFiles(data.published)
+      
+      console.log('✅ Loaded real data:', {
+        artifacts: data.artifacts.length,
+        published: data.published.length
+      })
     } catch (error) {
-      console.error('Failed to load artifacts:', error)
+      console.error('Failed to load artifacts from API, using mock data:', error)
+      // Fallback to mock data if API fails
       const mockArtifacts = generateMockArtifacts()
       setArtifacts(mockArtifacts)
       setPublishedFiles(generateMockPublishedFiles(mockArtifacts))
