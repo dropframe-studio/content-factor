@@ -11,6 +11,7 @@
     "capture:retro": "node dist/pipeline/capture/retro.js",
     "capture:note": "node dist/pipeline/capture/note.js",
     "capture:link": "node dist/pipeline/capture/link.js",
+    "capture:screenshot": "node dist/pipeline/capture/screenshot.js",
     "transform": "node dist/pipeline/transform.js",
     "publish-content": "node dist/pipeline/publish.js",
     "measure": "node dist/pipeline/measure.js",
