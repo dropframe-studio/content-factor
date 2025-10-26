@@ -1,0 +1,24 @@
+---
+import "../styles/global.css";
+import Sidebar from '../components/Sidebar.astro';
+import Header from '../components/Header.astro';
+
+const { title } = Astro.props;
+---
+
+<html lang="en" class="bg-background text-text-primary font-body">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title ?? 'Content Factor Docs'}</title>
+  </head>
+  <body class="flex min-h-screen">
+    <Sidebar />
+    <main class="flex-1 p-lg max-w-4xl mx-auto">
+      <Header title={title} />
+      <article class="prose prose-lg max-w-none">
+        <slot />
+      </article>
+    </main>
+  </body>
+</html>

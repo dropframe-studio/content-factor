@@ -1,0 +1,19 @@
+---
+const { stage } = Astro.props;
+
+const stageMap = {
+  build: { label: '🧱 Build', color: 'bg-build' },
+  capture: { label: '🔍 Capture', color: 'bg-capture' },
+  transform: { label: '🔧 Transform', color: 'bg-transform' },
+  publish: { label: '📣 Publish', color: 'bg-publish' },
+  measure: { label: '📊 Measure', color: 'bg-measure' },
+};
+
+const tag = stageMap[stage] ?? null;
+---
+
+{tag && (
+  <span class={`inline-block text-white text-xs font-semibold px-sm py-xs rounded-full ${tag.color}`}>
+    {tag.label}
+  </span>
+)}

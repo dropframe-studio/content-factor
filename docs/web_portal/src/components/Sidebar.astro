@@ -1,0 +1,69 @@
+---
+// This configuration now only includes links that correspond to existing files 
+// in your `src/content/` directory to prevent 404 errors.
+const sections = [
+  // The 'index' page is a separate route now, so we link directly to the root.
+  { label: 'Introduction', links: [
+    { name: 'Welcome', href: '/' },
+  ]},
+  
+  /*
+    NOTE: The following sections were commented out because they contain links
+    (like /architecture, /guides/onboarding, /reference/api) that do not 
+    correspond to any .md file in the src/content/ directory. 
+    To enable them, you must create a corresponding file, e.g., src/content/architecture.md
+  */
+  // { label: 'Getting Started', links: [
+  //   { name: 'Architecture', href: '/architecture' },
+  //   { name: 'Getting Started', href: '/getting-started' },
+  // ]},
+  // { label: 'Guides', links: [
+  //   { name: 'Onboarding', href: '/guides/onboarding' },
+  //   { name: 'Style Guide', href: '/guides/style-guide' },
+  //   { name: 'Contributing', href: '/guides/contributing' },
+  // ]},
+  // { label: 'Initiation', links: [
+  //   { name: 'Charter', href: '/initiation/charter' },
+  //   { name: 'Business Case', href: '/initiation/business-case' },
+  //   { name: 'Pipeline Flow', href: '/initiation/pipeline-flow' },
+  //   { name: 'Stakeholders', href: '/initiation/stakeholders' },
+  // ]},
+  
+  { label: 'Narrative (Storytelling)', links: [
+    { name: 'Storytelling Framework', href: '/storytelling/storytelling-framework' },
+    { name: 'Visual Storytelling', href: '/storytelling/visual-storytelling' },
+    { name: 'Writing GPS', href: '/storytelling/writing-gps' },
+  ]},
+  
+  { label: 'Philosophy & Manuals', links: [
+    { name: 'Creative Technical Manual', href: '/manuals/creative-technical-communication' },
+    // I noticed you have 'toc-creative-technical-communication.md' but no link for it.
+    { name: 'Radiant Seven', href: '/philosophy/radiant-seven' },
+    { name: 'Config Defined', href: '/philosophy/config-defined' },
+    { name: 'So They Speak', href: '/philosophy/so-they-speak' }, // Added the missing philosophy file
+  ]},
+  
+  // { label: 'Reference', links: [
+  //   { name: 'API', href: '/reference/api' },
+  //   { name: 'Config', href: '/reference/config' },
+  // ]},
+];
+---
+
+<aside class="w-64 bg-surface border-r border-border p-md">
+  <h2 class="text-xl font-heading mb-md">📚 Docs</h2>
+  <nav class="space-y-lg">
+    {sections.map(section => (
+      <div data-key={section.label}>
+        <h3 class="text-sm font-semibold text-text-secondary uppercase tracking-wide mb-sm">{section.label}</h3>
+        <ul class="space-y-xs">
+          {section.links.map(link => (
+            <li data-key={link.href}>
+              <a href={link.href} class="text-text-primary hover:text-publish transition">{link.name}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</aside>
