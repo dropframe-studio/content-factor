@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArtifactList } from './components/ArtifactList'
 import { MetricsOverview } from './components/MetricsOverview'
 import { ArtifactViewer } from './components/ArtifactViewer'
+import { Logo } from './components/Logo'
 import type { Artifact, PublishedFile } from './types'
 
 function App() {
@@ -17,12 +18,9 @@ function App() {
 
   async function loadArtifacts() {
     try {
-      // In development, we'll use a mock API endpoint
-      // In production, this would fetch from your data folder
       const response = await fetch('/api/artifacts')
       
       if (!response.ok) {
-        // Fallback to mock data for demo
         const mockArtifacts = generateMockArtifacts()
         setArtifacts(mockArtifacts)
         setPublishedFiles(generateMockPublishedFiles(mockArtifacts))
@@ -33,7 +31,6 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to load artifacts:', error)
-      // Use mock data
       const mockArtifacts = generateMockArtifacts()
       setArtifacts(mockArtifacts)
       setPublishedFiles(generateMockPublishedFiles(mockArtifacts))
@@ -48,27 +45,30 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-lg text-gray-600">Loading artifacts...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Content Factor</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Proof-of-work visibility dashboard
-              </p>
+            <div className="flex items-center gap-4">
+              <Logo />
+              <div>
+                <h1 className="text-3xl font-heading font-bold text-gray-900">CONTENT FACTOR</h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  Proof-of-work visibility dashboard
+                </p>
+              </div>
             </div>
             <button 
               onClick={loadArtifacts}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-build text-white rounded-md hover:opacity-90 transition-opacity font-medium"
             >
               Refresh
             </button>
@@ -86,30 +86,30 @@ function App() {
           <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md ${
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
                 filter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-build text-white'
+                  : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
               }`}
             >
               All
             </button>
             <button
               onClick={() => setFilter('RAW_COMMIT')}
-              className={`px-4 py-2 rounded-md ${
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
                 filter === 'RAW_COMMIT'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-capture text-white'
+                  : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
               }`}
             >
               Commits
             </button>
             <button
               onClick={() => setFilter('PROGRESS_SNAPSHOT')}
-              className={`px-4 py-2 rounded-md ${
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
                 filter === 'PROGRESS_SNAPSHOT'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-measure text-white'
+                  : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
               }`}
             >
               Retros
@@ -134,7 +134,7 @@ function App() {
   )
 }
 
-// Mock data generators for demo
+// Mock data generators
 function generateMockArtifacts(): Artifact[] {
   return [
     {
