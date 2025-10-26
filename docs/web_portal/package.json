@@ -1,0 +1,22 @@
+{
+  "name": "docs-web-portal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.8",
+    "@astrojs/sitemap": "^3.6.0",
+    "@tailwindcss/vite": "^4.1.16",
+    "astro": "^5.15.1",
+    "tailwindcss": "^4.1.16"
+  }
+}
