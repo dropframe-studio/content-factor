@@ -1,0 +1,16 @@
+{
+  "color": {
+    "build": { "value": "#F97316" },        // Orange
+    "capture": { "value": "#06B6D4" },      // Cyan
+    "transform": { "value": "#84CC16" },    // Lime
+    "publish": { "value": "#2563EB" },      // Blue
+    "measure": { "value": "#EC4899" },      // Pink
+    "background": { "value": "#F9FAFB" },   // Light gray
+    "surface": { "value": "#FFFFFF" },      // White
+    "text": {
+      "primary": { "value": "#111827" },    // Near-black
+      "secondary": { "value": "#4B5563" }   // Muted gray
+    },
+    "border": { "value": "#E5E7EB" }        // Neutral border gray
+  }
+}
