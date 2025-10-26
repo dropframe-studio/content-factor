@@ -1,14 +1,4 @@
-// src/components/ArtifactList.tsx
-
-import React from 'react'
 import type { Artifact } from '../types'
-
-// Map artifact types to pipeline colors for visual clarity
-const TYPE_COLORS: Record<string, string> = {
-  RAW_COMMIT: 'border-l-4 border-orange-500', // Build/Capture stage color (using orange for simplicity)
-  PROGRESS_SNAPSHOT: 'border-l-4 border-lime-500', // Transform/Measure stage color (using lime for simplicity)
-  // Add other types/colors as needed: cyan, blue, pink
-}
 
 interface ArtifactListProps {
   artifacts: Artifact[]
@@ -16,35 +6,120 @@ interface ArtifactListProps {
   onSelect: (id: string) => void
 }
 
-export const ArtifactList: React.FC<ArtifactListProps> = ({ artifacts, selectedId, onSelect }) => {
+export function ArtifactList({ artifacts, selectedId, onSelect }: ArtifactListProps) {
+  if (artifacts.length === 0) {
+    return (
+      <div className="bg-surface rounded-lg border border-border p-8 text-center">
+        <p className="text-gray-500">No artifacts found</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="bg-white shadow-lg rounded-xl overflow-hidden h-96 lg:h-full flex flex-col">
-      <h2 className="text-xl font-semibold p-4 border-b text-gray-800">Artifacts List ({artifacts.length})</h2>
-      <ul className="flex-grow overflow-y-auto divide-y divide-gray-100">
-        {artifacts.length > 0 ? (
-          artifacts.map((artifact) => (
-            <li
-              key={artifact.id}
-              className={`p-4 cursor-pointer transition-colors ${
-                artifact.id === selectedId
-                  ? 'bg-blue-50/70 border-r-4 border-blue-600' // Highlight active item with blue accent
-                  : 'hover:bg-gray-50'
-              } ${TYPE_COLORS[artifact.type] || 'border-l-4 border-gray-300'}`}
-              onClick={() => onSelect(artifact.id)}
-            >
-              <p className="font-medium text-gray-900">{artifact.metadata.title}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Type: <span className="font-mono text-xs bg-gray-100 rounded px-1">{artifact.type}</span>
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {new Date(artifact.createdAt).toLocaleString()}
-              </p>
-            </li>
-          ))
-        ) : (
-          <div className="p-4 text-center text-gray-500">No artifacts match the current filter.</div>
-        )}
-      </ul>
+    <div className="space-y-3">
+      <h2 className="text-lg font-heading font-semibold text-gray-900 mb-4">
+        Artifacts ({artifacts.length})
+      </h2>
+      <div className="space-y-2 max-h-[600px] overflow-y-auto">
+        {artifacts.map(artifact => (
+          <ArtifactCard
+            key={artifact.id}
+            artifact={artifact}
+            isSelected={artifact.id === selectedId}
+            onClick={() => onSelect(artifact.id)}
+          />
+        ))}
+      </div>
     </div>
+  )
+}
+
+interface ArtifactCardProps {
+  artifact: Artifact
+  isSelected: boolean
+  onClick: () => void
+}
+
+function ArtifactCard({ artifact, isSelected, onClick }: ArtifactCardProps) {
+  const typeColors = {
+    RAW_COMMIT: {
+      bg: 'bg-capture/10',
+      text: 'text-capture',
+      border: 'border-capture',
+    },
+    PROGRESS_SNAPSHOT: {
+      bg: 'bg-measure/10',
+      text: 'text-measure',
+      border: 'border-measure',
+    },
+    BUILD_LOG: {
+      bg: 'bg-build/10',
+      text: 'text-build',
+      border: 'border-build',
+    },
+    TEACHING_MOMENT: {
+      bg: 'bg-transform/10',
+      text: 'text-transform',
+      border: 'border-transform',
+    },
+    SYSTEM_OBSERVATION: {
+      bg: 'bg-publish/10',
+      text: 'text-publish',
+      border: 'border-publish',
+    },
+    PROJECT_EXPLAINER: {
+      bg: 'bg-build/10',
+      text: 'text-build',
+      border: 'border-build',
+    }
+  }
+
+  const typeIcons = {
+    RAW_COMMIT: '💻',
+    PROGRESS_SNAPSHOT: '📝',
+    BUILD_LOG: '🔨',
+    TEACHING_MOMENT: '💡',
+    SYSTEM_OBSERVATION: '👁️',
+    PROJECT_EXPLAINER: '📖'
+  }
+
+  const colors = typeColors[artifact.type]
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+        isSelected
+          ? `${colors.border} ${colors.bg} shadow-md`
+          : 'border-border bg-surface hover:border-gray-300 hover:shadow-sm'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className="text-2xl">{typeIcons[artifact.type]}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${colors.bg} ${colors.text}`}>
+              {artifact.type.replace(/_/g, ' ')}
+            </span>
+            <span className="text-xs text-gray-500 font-mono">
+              {new Date(artifact.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+          <h3 className="font-heading font-medium text-gray-900 truncate">
+            {artifact.metadata.title}
+          </h3>
+          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+            {artifact.metadata.summary}
+          </p>
+          <div className="flex gap-1 mt-2">
+            {artifact.metadata.tags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-mono">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </button>
   )
 }
