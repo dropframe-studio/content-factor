@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reflection Entry",
+  "type": "object",
+  "required": ["date", "type", "author", "content", "tags"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "YYYY-MM-DD of the reflection"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["system", "creative", "operational", "emotive", "meta", "strategic"],
+      "description": "Reflection category"
+    },
+    "author": {
+      "type": "string",
+      "description": "Originating agent (human or AI)"
+    },
+    "content": {
+      "type": "string",
+      "description": "The text of the reflection"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags for routing and context"
+    },
+    "links": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional links to Vault or prompt entries"
+    }
+  }
+}

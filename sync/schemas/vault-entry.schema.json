@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vault Entry",
+  "type": "object",
+  "required": ["id", "title", "source", "tags", "destination"],
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier" },
+    "title": { "type": "string", "description": "Descriptive title of the entry" },
+    "source": { "type": "string", "description": "Origin of the content (reflection, prompt, log)" },
+    "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags for routing or grouping" },
+    "destination": { "type": "string", "description": "Target module/drawer in the Vault" },
+    "status": { "type": "string", "enum": ["new", "parsed", "synced"], "default": "new" },
+    "linked_entries": { "type": "array", "items": { "type": "string" }, "description": "Related entries or prompts" }
+  }
+}

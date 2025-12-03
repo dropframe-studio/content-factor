@@ -198,6 +198,14 @@ function renderTeachingMoment(content: any): string {
     md += `## The Solution\n${content.solution}\n\n`;
   }
   
+  // If there's a screenshot, embed it
+  if (content.screenshot) {
+    md += `![Screenshot](/${content.screenshot})\n\n`;
+    if (content.description) {
+      md += `*${content.description}*\n\n`;
+    }
+  }
+  
   if (content.whyThisMatters) {
     md += `## Why This Matters\n${content.whyThisMatters}\n\n`;
   }
