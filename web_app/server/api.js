@@ -40,14 +40,18 @@ app.get('/api/artifacts', async (req, res) => {
     const publishedFiles = await readdir(PUBLISHED_DIR);
     const publishedMdFiles = publishedFiles.filter(f => f.endsWith('.md'));
     
+    // web_app/server/api.js
+
     const published = await Promise.all(
       publishedMdFiles.map(async (filename) => {
         const content = await readFile(join(PUBLISHED_DIR, filename), 'utf-8');
         
-        // Extract artifact ID and type from filename
-        // Format: {artifactId}-{TemplateType}.md
-        const match = filename.match(/^(.+)-(BuildLog|ProgressSnapshot|ProjectExplainer|SystemObservation|TeachingMoment)\.md$/);
+        // 1. Define the Regex
+        const regex = /^(.+)-([a-zA-Z]+)\.md$/;
         
+        // 2. RUN the Regex (This line was missing!)
+        const match = filename.match(regex); 
+
         if (!match) {
           console.warn(`Skipping file with unexpected format: ${filename}`);
           return null;
@@ -63,7 +67,6 @@ app.get('/api/artifacts', async (req, res) => {
         };
       })
     );
-
     // Filter out any null entries
     const validPublished = published.filter(Boolean);
 
@@ -114,7 +117,12 @@ app.get('/api/artifacts/:id', async (req, res) => {
     const published = await Promise.all(
       relatedPublished.map(async (filename) => {
         const content = await readFile(join(PUBLISHED_DIR, filename), 'utf-8');
-        const match = filename.match(/^(.+)-(BuildLog|ProgressSnapshot|ProjectExplainer|SystemObservation|TeachingMoment)\.md$/);
+        
+        // OLD: const match = filename.match(/^(.+)-(BuildLog|...)\.md$/);
+        
+        // NEW: Dynamic regex here too
+        const match = filename.match(/^(.+)-([a-zA-Z]+)\.md$/);
+        
         const [, , type] = match || [null, null, 'Unknown'];
         
         return {
