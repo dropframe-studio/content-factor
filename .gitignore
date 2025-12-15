@@ -32,3 +32,4 @@ data/metrics/
 
 # Web app build (if you later build with Vite/React/etc.)
 web_app/dist/
+data/content-factor.json

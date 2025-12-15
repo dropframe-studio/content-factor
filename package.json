@@ -8,7 +8,7 @@
     "cf": "./dist/bin/cf.js"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc && chmod +x dist/bin/cf.js",
     "start": "pnpm build && pnpm pipeline",
     "capture:commit": "node dist/pipeline/capture/commit.js",
     "capture:retro": "node dist/pipeline/capture/retro.js",
