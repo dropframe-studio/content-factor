@@ -16,7 +16,8 @@ export type ArtifactType =
   | 'PROJECT_EXPLAINER'
   | 'TEACHING_MOMENT'
   | 'PROGRESS_SNAPSHOT'
-  | 'RAW_COMMIT';
+  | 'RAW_COMMIT'
+  | 'LINK';
 
 // 2. Define the source from which the artifact was captured.
 export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot';

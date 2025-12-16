@@ -5,6 +5,7 @@ export type ArtifactType =
   | 'TEACHING_MOMENT'
   | 'PROGRESS_SNAPSHOT'
   | 'RAW_COMMIT'
+  | 'LINK'
 
 export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot'
 

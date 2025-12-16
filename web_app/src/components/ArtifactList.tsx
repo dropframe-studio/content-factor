@@ -71,6 +71,11 @@ function ArtifactCard({ artifact, isSelected, onClick }: ArtifactCardProps) {
       bg: 'bg-build/10',
       text: 'text-build',
       border: 'border-build',
+    },
+    LINK: {
+      bg: 'bg-blue-500/10',
+      text: 'text-blue-500',
+      border: 'border-blue-500',
     }
   }
 
@@ -80,7 +85,8 @@ function ArtifactCard({ artifact, isSelected, onClick }: ArtifactCardProps) {
     BUILD_LOG: '🔨',
     TEACHING_MOMENT: '💡',
     SYSTEM_OBSERVATION: '👁️',
-    PROJECT_EXPLAINER: '📖'
+    PROJECT_EXPLAINER: '📖',
+    LINK: '🔗'
   }
 
   const colors = typeColors[artifact.type]

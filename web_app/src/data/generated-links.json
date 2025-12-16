@@ -1,0 +1,64 @@
+{
+  "artifacts": [
+    {
+      "id": "link-1765799574691",
+      "slug": "link-link-176",
+      "createdAt": "2025-12-15T11:52:54.693Z",
+      "source": "manual",
+      "type": "LINK",
+      "metadata": {
+        "title": "https://gemini.google.com/app/907e546988c16fdd",
+        "summary": "https://gemini.google.com/app/907e546988c16fdd",
+        "tags": [
+          "content factor"
+        ],
+        "sourceRef": "cli-capture"
+      },
+      "payload": {
+        "url": "https://gemini.google.com/app/907e546988c16fdd",
+        "notes": "The DB and update link capture",
+        "description": "Meet Gemini, Google’s AI assistant. Get help with writing, planning, brainstorming, and more. Experience the power of generative AI.",
+        "tags": [
+          "content factor"
+        ]
+      }
+    },
+    {
+      "id": "link-1765873064556",
+      "slug": "link-link-176",
+      "createdAt": "2025-12-16T08:17:44.556Z",
+      "source": "manual",
+      "type": "LINK",
+      "metadata": {
+        "title": "https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb",
+        "summary": "https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb",
+        "tags": [
+          "block"
+        ],
+        "sourceRef": "cli-capture"
+      },
+      "payload": {
+        "url": "https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb",
+        "notes": "Failed to update content factor",
+        "description": "",
+        "tags": [
+          "block"
+        ]
+      }
+    }
+  ],
+  "published": [
+    {
+      "id": "link-1765799574691",
+      "type": "Link",
+      "filename": "link-1765799574691-Link.md",
+      "content": "# Link: https://gemini.google.com/app/907e546988c16fdd\n\n*Captured Link*\n\n---\n\n## Note\nNo notes provided.\n\n## URL\n[https://gemini.google.com/app/907e546988c16fdd](https://gemini.google.com/app/907e546988c16fdd)\n\n## Tags\n`#content factor`\n"
+    },
+    {
+      "id": "link-1765873064556",
+      "type": "Link",
+      "filename": "link-1765873064556-Link.md",
+      "content": "# Link: https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb\n\n*Captured Link*\n\n---\n\n## Note\nNo notes provided.\n\n## URL\n[https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb](https://chatgpt.com/c/6940dcc4-17a8-8330-a236-608064858ecb)\n\n## Tags\n`#block`\n"
+    }
+  ]
+}

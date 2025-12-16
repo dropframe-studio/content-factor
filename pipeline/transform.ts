@@ -1,7 +1,7 @@
 // pipeline/transform.ts
 
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'fs';
+import { join, resolve } from 'path';
 import { Artifact, ArtifactType } from './artifact.js';
 
 // Import all templates
@@ -10,6 +10,7 @@ import { progressSnapshotTemplate } from '../templates/progressSnapshot.js';
 import { projectExplainerTemplate } from '../templates/projectExplainer.js';
 import { systemObservationTemplate } from '../templates/systemObservation.js';
 import { teachingMomentTemplate } from '../templates/teachingMoment.js';
+import { transformLink } from '../templates/linkArtifact.js';
 
 /**
  * Template function type definition
@@ -26,6 +27,7 @@ const TEMPLATE_MAP: Record<ArtifactType, TemplateFunction> = {
   PROJECT_EXPLAINER: projectExplainerTemplate,
   SYSTEM_OBSERVATION: systemObservationTemplate,
   TEACHING_MOMENT: teachingMomentTemplate,
+  LINK: (a) => a, // Placeholder, LINK handled separately for now
 };
 
 /**
@@ -51,52 +53,89 @@ function applyTemplate(artifact: Artifact): any {
 export async function runTransformPipeline() {
   const artifactsDir = join(process.cwd(), 'data', 'artifacts');
   const publishedDir = join(process.cwd(), 'data', 'published');
+  const contentFactorFile = join(process.cwd(), 'data', 'content-factor.json');
 
   // 1. Ensure output directory exists
   mkdirSync(publishedDir, { recursive: true });
 
   try {
-    // 2. Read all files in the artifacts directory
-    const files = readdirSync(artifactsDir).filter(file => file.endsWith('.json'));
+    // --- PART 1: Process Standard Artifacts ---
+    if (existsSync(artifactsDir)) {
+      const files = readdirSync(artifactsDir).filter(file => file.endsWith('.json'));
 
-    if (files.length === 0) {
-      console.log('🟡 No artifacts found to transform in data/artifacts/.');
-      return;
+      if (files.length > 0) {
+        console.log(`
+======================================================`);
+        console.log(`🌀 Running Transformation on ${files.length} Artifact(s)`);
+        console.log(`======================================================`);
+
+        for (const fileName of files) {
+          const artifactPath = join(artifactsDir, fileName);
+          const artifactData = readFileSync(artifactPath, 'utf-8');
+          
+          let artifact: Artifact;
+          try {
+            artifact = JSON.parse(artifactData);
+          } catch (e) {
+            console.error(`❌ ERROR: Failed to parse JSON for artifact: ${fileName}`);
+            continue;
+          }
+
+          // 3. Apply the appropriate template based on artifact type
+          const transformedContent = applyTemplate(artifact);
+          
+          if (!transformedContent) {
+            continue; // Skip if no template was found
+          }
+
+          // 4. Save the output
+          const outputFileName = `${artifact.id}-${transformedContent.type}.json`;
+          const outputPath = join(publishedDir, outputFileName);
+          
+          writeFileSync(outputPath, JSON.stringify(transformedContent, null, 2));
+
+          console.log(`  ✅ Transformed ${artifact.id} (${artifact.type}) → ${transformedContent.type} → ${outputFileName}`);
+        }
+      }
     }
 
-    console.log(`\n======================================================`);
-    console.log(`🌀 Running Transformation on ${files.length} Artifact(s)`);
-    console.log(`======================================================`);
+    // --- PART 2: Process Links from content-factor.json ---
+    if (existsSync(contentFactorFile)) {
+      console.log(`
+======================================================`);
+      console.log(`🔗 Processing Links from content-factor.json`);
+      console.log(`======================================================`);
 
-    for (const fileName of files) {
-      const artifactPath = join(artifactsDir, fileName);
-      const artifactData = readFileSync(artifactPath, 'utf-8');
-      
-      let artifact: Artifact;
-      try {
-        artifact = JSON.parse(artifactData);
-      } catch (e) {
-        console.error(`❌ ERROR: Failed to parse JSON for artifact: ${fileName}`);
-        continue;
+      const contentData = JSON.parse(readFileSync(contentFactorFile, 'utf-8'));
+      const items = contentData.artifacts || [];
+      const linksOutput = { artifacts: [] as any[], published: [] as any[] };
+
+      for (const item of items) {
+        if (item.type === 'Link') {
+           try {
+             const { artifact, publishedFile } = transformLink(item);
+             linksOutput.artifacts.push(artifact);
+             linksOutput.published.push(publishedFile);
+             console.log(`  ✅ Transformed Link ${item.id}`);
+           } catch (err) {
+             console.error(`  ❌ Failed to transform link ${item.id}:`, err);
+           }
+        }
       }
 
-      // 3. Apply the appropriate template based on artifact type
-      const transformedContent = applyTemplate(artifact);
-      
-      if (!transformedContent) {
-        continue; // Skip if no template was found
+      // Write to Web App
+      const webAppDataDir = resolve(process.cwd(), 'web_app', 'src', 'data');
+      if (!existsSync(webAppDataDir)) {
+          mkdirSync(webAppDataDir, { recursive: true });
       }
-
-      // 4. Save the output
-      const outputFileName = `${artifact.id}-${transformedContent.type}.json`;
-      const outputPath = join(publishedDir, outputFileName);
-      
-      writeFileSync(outputPath, JSON.stringify(transformedContent, null, 2));
-
-      console.log(`  ✅ Transformed ${artifact.id} (${artifact.type}) → ${transformedContent.type} → ${outputFileName}`);
+      const dest = join(webAppDataDir, 'generated-links.json');
+      writeFileSync(dest, JSON.stringify(linksOutput, null, 2));
+      console.log(`  💾 Saved ${linksOutput.artifacts.length} links to ${dest}`);
     }
-    
-    console.log(`\nTransformation complete. Published content is in ${publishedDir}/\n`);
+
+    console.log(`
+Transformation complete.
+`);
 
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {

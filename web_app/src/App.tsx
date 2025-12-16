@@ -4,6 +4,7 @@ import { MetricsOverview } from './components/MetricsOverview'
 import { ArtifactViewer } from './components/ArtifactViewer'
 import { Logo } from './components/Logo'
 import type { Artifact, PublishedFile } from './types'
+import generatedLinks from './data/generated-links.json'
 
 function App() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([])
@@ -17,18 +18,21 @@ function App() {
   }, [])
 
   async function loadArtifacts() {
+    const linkArtifacts = (generatedLinks as any).artifacts || []
+    const linkFiles = (generatedLinks as any).published || []
+
     try {
       // Fetch from real API
       const response = await fetch('http://localhost:3001/api/artifacts')
-      
+
       if (!response.ok) {
         throw new Error(`API returned ${response.status}`)
       }
-      
+
       const data = await response.json()
-      setArtifacts(data.artifacts)
-      setPublishedFiles(data.published)
-      
+      setArtifacts([...data.artifacts, ...linkArtifacts])
+      setPublishedFiles([...data.published, ...linkFiles])
+
       console.log('✅ Loaded real data:', {
         artifacts: data.artifacts.length,
         published: data.published.length
@@ -37,15 +41,15 @@ function App() {
       console.error('Failed to load artifacts from API, using mock data:', error)
       // Fallback to mock data if API fails
       const mockArtifacts = generateMockArtifacts()
-      setArtifacts(mockArtifacts)
-      setPublishedFiles(generateMockPublishedFiles(mockArtifacts))
+      setArtifacts([...mockArtifacts, ...linkArtifacts])
+      setPublishedFiles([...generateMockPublishedFiles(mockArtifacts), ...linkFiles])
     } finally {
       setLoading(false)
     }
   }
 
-  const filteredArtifacts = filter === 'all' 
-    ? artifacts 
+  const filteredArtifacts = filter === 'all'
+    ? artifacts
     : artifacts.filter(a => a.type === filter)
 
   if (loading) {
@@ -71,7 +75,7 @@ function App() {
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={loadArtifacts}
               className="px-4 py-2 bg-build text-white rounded-md hover:opacity-90 transition-opacity font-medium"
             >
@@ -81,54 +85,60 @@ function App() {
         </div>
       </header>
 
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Metrics */}
           <MetricsOverview artifacts={artifacts} publishedFiles={publishedFiles} />
-
           {/* Filter */}
           <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                filter === 'all'
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === 'all'
                   ? 'bg-build text-white'
                   : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
-              }`}
+                }`}
             >
               All
             </button>
             <button
               onClick={() => setFilter('RAW_COMMIT')}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                filter === 'RAW_COMMIT'
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === 'RAW_COMMIT'
                   ? 'bg-capture text-white'
                   : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
-              }`}
+                }`}
             >
               Commits
             </button>
             <button
               onClick={() => setFilter('PROGRESS_SNAPSHOT')}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                filter === 'PROGRESS_SNAPSHOT'
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === 'PROGRESS_SNAPSHOT'
                   ? 'bg-measure text-white'
                   : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
-              }`}
+                }`}
             >
               Retros
+            </button>
+            <button
+              onClick={() => setFilter('LINK')}
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === 'LINK'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-surface text-gray-700 hover:bg-gray-50 border border-border'
+                }`}
+            >
+              Links
             </button>
           </div>
 
           {/* Artifact List and Viewer */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ArtifactList 
+            <ArtifactList
               artifacts={filteredArtifacts}
               selectedId={selectedArtifact}
               onSelect={setSelectedArtifact}
             />
-            <ArtifactViewer 
+            <ArtifactViewer
               artifactId={selectedArtifact}
               publishedFiles={publishedFiles}
             />
