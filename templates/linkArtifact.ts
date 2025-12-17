@@ -1,4 +1,4 @@
-import { Artifact } from '../pipeline/artifact.js';
+import { type ArtifactData } from '../pipeline/artifact.js';
 
 // Helper to generate Markdown content for the Viewer
 const generateLinkMarkdown = (url: string, note: string, tags: string[]) => {
@@ -24,7 +24,7 @@ export const transformLink = (raw: any) => {
     let data = typeof raw.payload === 'string' ? JSON.parse(raw.payload) : raw.payload;
     
     // 1. Create the Artifact Object (for the List View)
-    const artifact: Artifact = {
+    const artifact: ArtifactData = {
         id: raw.id,
         slug: `link-${raw.id.substring(0, 8)}`,
         createdAt: raw.created_at || new Date().toISOString(), // Handle created_at vs timestamp differences

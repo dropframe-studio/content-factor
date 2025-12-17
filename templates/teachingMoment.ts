@@ -1,11 +1,11 @@
 // templates/teachingMoment.ts
-import { Artifact } from "../pipeline/artifact.js";
+import { type ArtifactData } from "../pipeline/artifact.js";
 
 /**
  * Transforms a raw Artifact into a structured Teaching Moment.
  * Works for commits, notes, and screenshots.
  */
-export function teachingMomentTemplate(artifact: Artifact) {
+export function teachingMomentTemplate(artifact: ArtifactData) {
   // Check if this is a note (has content in payload)
   const isNote = artifact.payload && 'content' in artifact.payload;
   

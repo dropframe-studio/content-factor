@@ -1,13 +1,11 @@
 // pipeline/capture/note.ts
 
-import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import * as readline from "readline";
-import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
+import { Artifact, type ArtifactData, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
+import { StorageManager } from "../storage/manager.js";
+import type { StorageStrategy } from "../storage/types.js";
 
-/**
- * Prompts the user for a quick note entry.
- */
 async function promptNote(): Promise<{
   title: string;
   content: string;
@@ -57,17 +55,42 @@ async function promptNote(): Promise<{
   return { title, content, type, tags };
 }
 
-/**
- * Creates a note Artifact from user input.
- */
-export async function captureNote(): Promise<Artifact> {
+export class NoteArtifact extends Artifact {
+  declare payload: {
+    content: string;
+    noteType: ArtifactType;
+  };
+
+  constructor(data: ArtifactData) {
+    super(data);
+  }
+
+  getStorageStrategy(): StorageStrategy {
+    return {
+      metadataBackend: 'sqlite',
+      contentBackend: 'filesystem',
+      config: {
+        sqliteTable: 'notes',
+        filesystemPath: 'artifacts',
+      },
+    };
+  }
+
+  validate(): boolean {
+    return this.payload.content.length > 0;
+  }
+}
+
+const storageManager = new StorageManager();
+
+export async function captureNote(): Promise<NoteArtifact> {
   const note = await promptNote();
   
   const artifactType = note.type;
   const slugBase = note.title.toLowerCase().split(/\s+/).slice(0, 5).join('-');
   const slug = slugBase.replace(/[^a-z0-9-]/g, '');
 
-  return {
+  return new NoteArtifact({
     id: generateArtifactId(artifactType),
     slug: slug || 'note',
     createdAt: new Date().toISOString(),
@@ -83,25 +106,28 @@ export async function captureNote(): Promise<Artifact> {
       content: note.content,
       noteType: artifactType,
     },
-  };
+  });
 }
 
 export async function runNotePipeline() {
   try {
     const artifact = await captureNote();
+    await storageManager.store(artifact);
 
-    const artifactsDir = join(process.cwd(), "data", "artifacts");
-    const outPath = join(artifactsDir, `${artifact.id}.json`);
-
-    mkdirSync(artifactsDir, { recursive: true });
-    writeFileSync(outPath, JSON.stringify(artifact, null, 2));
+    const contentDir = join(
+      process.cwd(),
+      'data',
+      artifact.getStorageStrategy().config?.filesystemPath ?? 'artifacts'
+    );
+    const outPath = join(contentDir, `${artifact.id}.json`);
 
     console.log(`\n======================================================`);
     console.log(`✅ Note Artifact Captured`);
     console.log(`ID: ${artifact.id}`);
     console.log(`Type: ${artifact.type}`);
     console.log(`Title: ${artifact.metadata.title}`);
-    console.log(`File: ${outPath}`);
+    console.log(`Metadata: sqlite → ${artifact.getStorageStrategy().config?.sqliteTable ?? 'artifacts'}`);
+    console.log(`Content File: ${outPath}`);
     console.log(`======================================================\n`);
     console.log("Run 'pnpm transform && pnpm publish-content && pnpm measure' to process this note.\n");
 
@@ -111,5 +137,4 @@ export async function runNotePipeline() {
   }
 }
 
-// Always run when this file executes
 runNotePipeline();

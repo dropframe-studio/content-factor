@@ -1,10 +1,10 @@
 // templates/buildLog.ts
-import { Artifact } from "../pipeline/artifact.js";
+import { type ArtifactData } from "../pipeline/artifact.js";
 
 /**
  * Transforms a raw Artifact (like a commit or screenshot) into a structured Build Log content piece.
  */
-export function buildLogTemplate(artifact: Artifact) {
+export function buildLogTemplate(artifact: ArtifactData) {
   // Check if this is a screenshot
   const isScreenshot = artifact.source === 'screenshot';
   

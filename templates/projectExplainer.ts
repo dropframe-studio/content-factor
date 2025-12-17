@@ -1,10 +1,10 @@
 // templates/projectExplainer.ts
-import { Artifact } from "../pipeline/artifact.js";
+import { type ArtifactData } from "../pipeline/artifact.js";
 
 /**
  * Transforms a raw Artifact into a structured Project Explainer.
  */
-export function projectExplainerTemplate(artifact: Artifact) {
+export function projectExplainerTemplate(artifact: ArtifactData) {
   return {
     id: artifact.id,
     type: "ProjectExplainer",

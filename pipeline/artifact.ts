@@ -1,12 +1,15 @@
 // pipeline/artifact.ts
 
+import type { StorageStrategy } from './storage/types.js';
+
 /**
  * ====================================================================
  * ARTIFACT SCHEMA
  * ====================================================================
  *
  * This file defines the core data structure for the Content Factor pipeline.
- * Every unit of captured work must conform to the 'Artifact' interface.
+ * Artifacts now use an abstract base class so each concrete artifact can
+ * declare its own storage strategy and validation rules.
  */
 
 // 1. Define the possible categories of work being captured.
@@ -22,69 +25,61 @@ export type ArtifactType =
 // 2. Define the source from which the artifact was captured.
 export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot';
 
-// 3. The Core Artifact Interface
-export interface Artifact {
-  /**
-   * A unique identifier for the artifact. Generated upon capture.
-   * Example: 'artifact-20251025-a7b9c1d2'
-   */
-  id: string;
+export interface ArtifactMetadata {
+  title: string;
+  summary: string;
+  authorId?: string;
+  tags: string[];
+  sourceRef: string;
+}
 
-  /**
-   * The file name (without extension) for the resulting published content.
-   */
+export interface ArtifactData {
+  id?: string;
   slug: string;
-
-  /**
-   * The date and time when the work was completed/captured.
-   */
-  createdAt: string; // ISO 8601 string
-
-  /**
-   * The source system/method that generated this artifact.
-   */
+  createdAt: string;
   source: ArtifactSource;
-
-  /**
-   * The classification of this artifact, determining which template to use.
-   */
   type: ArtifactType;
-
-  /**
-   * Core metadata fields.
-   */
-  metadata: {
-    /**
-     * Primary subject or title derived from the source work.
-     */
-    title: string;
-
-    /**
-     * A short summary or description of the captured work.
-     */
-    summary: string;
-
-    /**
-     * Optional author/user ID.
-     */
-    authorId?: string;
-
-    /**
-     * Tags for categorization (e.g., 'typescript', 'architecture', 'tailwind').
-     */
-    tags: string[];
-
-    /**
-     * Reference to the source of the work (e.g., Git SHA, PR number, ticket ID).
-     */
-    sourceRef: string;
-  };
-
-  /**
-   * The main content payload. This is the raw data extracted from the source.
-   * Its structure depends on the ArtifactSource.
-   */
+  metadata: ArtifactMetadata;
   payload: Record<string, unknown>;
+}
+
+// 3. Abstract Artifact Base Class
+export abstract class Artifact {
+  id: string;
+  slug: string;
+  createdAt: string;
+  source: ArtifactSource;
+  type: ArtifactType;
+  metadata: ArtifactMetadata;
+  payload: Record<string, unknown>;
+
+  protected constructor(data: ArtifactData) {
+    this.id = data.id ?? generateArtifactId(data.type);
+    this.slug = data.slug;
+    this.createdAt = data.createdAt;
+    this.source = data.source;
+    this.type = data.type;
+    this.metadata = data.metadata;
+    this.payload = data.payload;
+  }
+
+  // Each artifact type declares its storage strategy
+  abstract getStorageStrategy(): StorageStrategy;
+
+  // Validation hook
+  abstract validate(): boolean;
+
+  serialize(): ArtifactData {
+    return {
+      id: this.id,
+      slug: this.slug,
+      createdAt: this.createdAt,
+      source: this.source,
+      type: this.type,
+      metadata: this.metadata,
+      payload: this.payload,
+    };
+  }
 }
 
 // 4. Helper function stub for generating unique IDs (can be filled in later).
@@ -94,8 +89,8 @@ export function generateArtifactId(type: ArtifactType): string {
   return `${type.toLowerCase().replace(/_/g, '-')}-${timestamp}-${randomHash}`;
 }
 
-// 5. Default/Mock Artifact for testing the pipeline.
-export const mockArtifact: Artifact = {
+// 5. Default/Mock Artifact payload for testing the pipeline.
+export const mockArtifact: ArtifactData = {
   id: generateArtifactId('BUILD_LOG'),
   slug: 'initial-setup-complete',
   createdAt: new Date().toISOString(),

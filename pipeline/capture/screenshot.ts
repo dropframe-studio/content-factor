@@ -3,7 +3,7 @@
 import { writeFileSync, mkdirSync, copyFileSync, existsSync, statSync } from "fs";
 import { join, basename, extname } from "path";
 import * as readline from "readline";
-import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
+import { type ArtifactData, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
 
 /**
  * Prompts the user for screenshot details.
@@ -79,7 +79,7 @@ async function promptScreenshot(): Promise<{
 /**
  * Creates a screenshot Artifact from user input.
  */
-export async function captureScreenshot(): Promise<Artifact> {
+export async function captureScreenshot(): Promise<ArtifactData> {
   const screenshot = await promptScreenshot();
   
   // Map screenshot type to artifact type

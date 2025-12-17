@@ -2,7 +2,7 @@
 
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { Artifact, ArtifactType } from './artifact.js';
+import { type ArtifactData, ArtifactType } from './artifact.js';
 
 // Import all templates
 import { buildLogTemplate } from '../templates/buildLog.js';
@@ -15,7 +15,7 @@ import { transformLink } from '../templates/linkArtifact.js';
 /**
  * Template function type definition
  */
-type TemplateFunction = (artifact: Artifact) => any;
+type TemplateFunction = (artifact: ArtifactData) => any;
 
 /**
  * Map artifact types to their corresponding template functions
@@ -35,7 +35,7 @@ const TEMPLATE_MAP: Record<ArtifactType, TemplateFunction> = {
  * @param artifact The artifact to transform
  * @returns The structured content object
  */
-function applyTemplate(artifact: Artifact): any {
+function applyTemplate(artifact: ArtifactData): any {
   const templateFn = TEMPLATE_MAP[artifact.type];
   
   if (!templateFn) {
@@ -73,7 +73,7 @@ export async function runTransformPipeline() {
           const artifactPath = join(artifactsDir, fileName);
           const artifactData = readFileSync(artifactPath, 'utf-8');
           
-          let artifact: Artifact;
+          let artifact: ArtifactData;
           try {
             artifact = JSON.parse(artifactData);
           } catch (e) {

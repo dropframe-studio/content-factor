@@ -1,11 +1,11 @@
 // templates/systemObservation.ts
-import { Artifact } from "../pipeline/artifact.js";
+import { type ArtifactData } from "../pipeline/artifact.js";
 
 /**
  * Transforms a raw Artifact into a structured System Observation.
  * Works for commits, notes, and links.
  */
-export function systemObservationTemplate(artifact: Artifact) {
+export function systemObservationTemplate(artifact: ArtifactData) {
   // Check if this is a note or link (has content in payload)
   const isNote = artifact.payload && 'content' in artifact.payload;
   const isLink = artifact.payload && 'url' in artifact.payload;
