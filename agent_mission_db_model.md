@@ -5,7 +5,7 @@ Design Spec:
 
 Pattern: Repository/Strategy Pattern (Artifacts declare how they are stored).
 
-Driver: better-sqlite3 (install this).
+Driver: sqlite3 (install this).
 
 Location: core_projects/content-factor/pipeline.
 
@@ -13,9 +13,9 @@ Tasks:
 
 Install Dependencies:
 
-Run npm add better-sqlite3.
+Run npm add sqlite3.
 
-Run npm add -D @types/better-sqlite3.
+Run npm add -D @types/sqlite3.
 
 Create Storage Layer (pipeline/storage/):
 

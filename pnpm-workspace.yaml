@@ -1,4 +1,1 @@
-allowScripts: better-sqlite3
-
-ignoredBuiltDependencies:
-  - sqlite3
+allowScripts: sqlite3

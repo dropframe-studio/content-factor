@@ -242,7 +242,7 @@ export class FilesystemBackend implements IStorageBackend {
 
 ```typescript
 // pipeline/storage/backends/sqlite.ts
-import Database from 'better-sqlite3'; // or your sqlite lib of choice
+import sqlite3 from 'sqlite3'; // or your sqlite lib of choice
 
 export class SqliteBackend implements IStorageBackend {
   private db: Database.Database;
@@ -312,11 +312,10 @@ export class SqliteBackend implements IStorageBackend {
 3. Update capture scripts to use new classes
 
 **Phase 3: Add SQLite**
-1. Add `better-sqlite3` dependency
+1. Add `sqlite3` dependency
 2. Implement `SqliteBackend`
 3. Update `LinkArtifact` to use hybrid storage (metadata → sqlite, content → filesystem)
 
 **Phase 4: External DB support**
 1. Implement `ExternalBackend` (postgres/mongo/etc)
 2. Make backend configurable via environment variables
-
