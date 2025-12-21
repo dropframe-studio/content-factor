@@ -3,7 +3,7 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import * as readline from "readline";
-import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
+import { type ArtifactData, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js";
 
 /**
  * Prompts the user for retro input via command line.
@@ -48,7 +48,7 @@ async function promptRetro(): Promise<{
 /**
  * Creates a retro Artifact from user input.
  */
-export async function captureRetro(): Promise<Artifact> {
+export async function captureRetro(): Promise<ArtifactData> {
   const retro = await promptRetro();
   
   const artifactType: ArtifactType = 'PROGRESS_SNAPSHOT';

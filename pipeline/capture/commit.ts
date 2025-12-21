@@ -3,7 +3,7 @@
 import { execSync } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import { Artifact, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js"; // Note the .js extension for ESM imports
+import { type ArtifactData, generateArtifactId, ArtifactSource, ArtifactType } from "../artifact.js"; // Note the .js extension for ESM imports
 
 /**
  * Executes a git log command to fetch information about the last commit.
@@ -40,7 +40,7 @@ function getLastCommit(): { hash: string; message: string; author: string; date:
  * Creates an Artifact object from the latest Git commit.
  * @returns A fully compliant Artifact object.
  */
-export function captureCommit(): Artifact {
+export function captureCommit(): ArtifactData {
   const { hash, message, author, date } = getLastCommit();
 
   // Define the core type and slug based on the commit message.

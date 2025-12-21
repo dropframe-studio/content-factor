@@ -1,11 +1,11 @@
 // templates/progressSnapshot.ts
-import { Artifact } from "../pipeline/artifact.js";
+import { type ArtifactData } from "../pipeline/artifact.js";
 
 /**
  * Transforms a raw Artifact into a structured Progress Snapshot.
  * Works for both commits and retros.
  */
-export function progressSnapshotTemplate(artifact: Artifact) {
+export function progressSnapshotTemplate(artifact: ArtifactData) {
   // Check if this is a retro (has structured retro data in payload)
   const isRetro = artifact.payload && 'whatShipped' in artifact.payload;
 

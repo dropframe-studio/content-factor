@@ -20,3 +20,4 @@ All reports must follow the file naming convention: `YYYY-MM-DD_<type>.md`
 | `performance-analysis` | Metrics and observations regarding application performance, build times, and resource usage. |
 | `functionality-test` | Results from automated test runs, manual verification steps, and bug reproduction attempts. |
 | `system-health` | General overview of the system's stability, including architecture review and technical debt assessment. |
+| `storage-migration` | Reports covering storage-layer refactors, backend strategy changes, and migration plans. |
