@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-async function postFlightAudit() {
+export async function postFlightAudit() {
   const sourceDir = './data/artifacts';
   const migratedDir = './data/artifacts_migrated';
   

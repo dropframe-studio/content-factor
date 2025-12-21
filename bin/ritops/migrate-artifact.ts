@@ -27,7 +27,7 @@ interface CanonicalArtifact {
   };
 }
 
-async function migrate() {
+export async function migrate() {
   const sourceDir = './data/artifacts';
   const targetDir = './data/artifacts_migrated';
   

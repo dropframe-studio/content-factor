@@ -1,7 +1,7 @@
 // bin/cf.ts extension
 import { Command } from 'commander';
-import { runRitualMigration } from './ritops/runRitualArtifactMigration';
-import { postFlightAudit } from './ritops/post-flight-check';
+import { runRitualMigration } from './ritops/verifyIntegrity.js';
+import { postFlightAudit } from './ritops/post-flight-check.js';
 
 const program = new Command();
 

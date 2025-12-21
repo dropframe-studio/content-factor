@@ -7,7 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
-async function runRitualMigration() {
+export async function runRitualMigration() {
   const sourceDir = './data/artifacts';
   const targetDir = './data/artifacts_migrated';
   const backupDir = `./data/backups/preflight_${Date.now()}`;
