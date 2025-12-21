@@ -2,7 +2,7 @@
  * MISSION: Content Factor Schema Migration
  * SOP: PRE-FLIGHT (Sweep) -> EXECUTE (Inspect/Standardize) -> AUDIT (Report)
  */
-import {  migrate } from './migrate-artifact.js'; // Mapping to the 'migrate' function
+import {  migrate } from './migrate.js'; // Mapping to the 'migrate' function
 import { postFlightAudit as verifyIntegrity } from './post-flight-check.js'; // Mapping to the audit logic
 
 async function runUnifiedMigration() {

@@ -7,7 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
-export async function runRitualMigration() {
+export async function runBackupMigration() {
   const sourceDir = './data/artifacts';
   const targetDir = './data/artifacts_migrated';
   const backupDir = `./data/backups/preflight_${Date.now()}`;
@@ -78,4 +78,4 @@ function mapIntent(type: string) {
   return map[type] || "note";
 }
 
-runRitualMigration().catch(console.error);
+runBackupMigration().catch(console.error);
