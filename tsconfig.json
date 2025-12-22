@@ -10,5 +10,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["**/*.ts", "docs/web_portal/src/content.config.mjs"]
+  "include": ["bin/**/*.ts", "pipeline/**/*.ts", "scripts/**/*.ts", "publish/**/*.ts", "sync/**/*.ts", "templates/**/*.ts"],
+  "exclude": ["web_app", "docs", "design"]
 }
