@@ -56,7 +56,10 @@ async function promptLink(): Promise<{
   const url = await question("URL: ");
   
   // PRE-FETCH: Get metadata before asking for title
+  // Pause rl to prevent it from consuming input while we wait
+  rl.pause();
   const metadata = await fetchMetadata(url);
+  rl.resume();
   const defaultTitle = metadata.title || url;
 
   // Show the user what we found
