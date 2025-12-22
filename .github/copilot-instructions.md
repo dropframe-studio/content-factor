@@ -55,16 +55,16 @@ The project is **migrating from filesystem-only to hybrid storage**:
 - **Filesystem** (`backends/filesystem.ts`): JSON payload storage in `data/artifacts/`
 - **Manager** (`manager.ts`): Routes artifacts to backends based on `getStorageStrategy()`
 
-**Migration Status**: See [REPORTS/2025-12-18_codex-gpt-sqlite3-migration.md](REPORTS/2025-12-18_codex-gpt-sqlite3-migration.md) and [data_migration_phase_list.md](data_migration_phase_list.md).
+**Migration Status**: See [docs/reports/2025-12-18_codex-gpt-sqlite3-migration.md](docs/reports/2025-12-18_codex-gpt-sqlite3-migration.md) and [data_migration_phase_list.md](data_migration_phase_list.md).
 
 ### Dual Database Pattern
 
 Content Factor uses **two databases** side-by-side during migration:
 
 1. **SQLite** (`data/content-factor.db`): New structured storage for metadata (artifacts, assets tables)
-2. **LowDB** (`data/content-factor.json`): Legacy JSON database used by CLI (`bin/cf.ts`)
+2. **LowDB** (`data/content-factor.json`): Legacy JSON database (currently unused but may be referenced in docs)
 
-**Critical**: Don't confuse `pipeline/db.ts` (LowDB for CLI) with `pipeline/storage/backends/sqlite.ts` (SQLite for pipeline).
+**Critical**: Don't confuse `pipeline/db.ts` (LowDB setup) with `pipeline/storage/backends/sqlite.ts` (SQLite for pipeline). The CLI now uses **RITOps** artifact management commands instead of LowDB queries.
 
 ### Pipeline Flow
 
@@ -114,11 +114,12 @@ pnpm measure            # Collect metrics
 
 ```bash
 pnpm build              # Must rebuild after changes to bin/cf.ts
-cf status               # Show artifact count from LowDB
-cf capture link         # Interactive link capture
+cf adopt <file>         # SOP: Entry audit and adoption of a new file (alias: register)
+cf normalize            # SOP: Mutate all artifacts to eliminate variance
+cf inspect              # RDX: Run repository health dashboard and report variance
 ```
 
-The CLI uses `commander` and reads from `data/content-factor.json` (LowDB), not SQLite.
+The CLI uses `commander` and **RITOps** (Ritual Operations) for artifact management. See [bin/ritops/](bin/ritops/) for implementation details.
 
 ### Build & Compilation
 
@@ -319,7 +320,7 @@ The project does **not use Jest/Vitest**. Validation is manual/ad-hoc. If adding
 2. Implement `getStorageStrategy()` and `validate()`.
 3. Use `StorageManager` to persist (new pattern) or filesystem writes (legacy).
 4. Add `pnpm capture:xxx` script to `package.json`.
-5. Add CLI command to `bin/cf.ts` if interactive.
+5. If interactive prompts needed, follow the pattern in `note.ts` (readline-based prompts).
 
 ### Task: Add a New Template Type
 1. Define new `ArtifactType` in `pipeline/artifact.ts`.
@@ -367,7 +368,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 | `pipeline/measure.ts` | Metrics collection |
 | `templates/*.ts` | Content transformation blueprints |
 | `publish/markdown.ts` | Markdown renderer (main publisher) |
-| `bin/cf.ts` | CLI tool using Commander + LowDB |
+| `bin/cf.ts` | CLI tool using Commander + RITOps (artifact management) |
+| `bin/ritops/artifact/` | RITOps artifact operations (adopt, normalize, inspect) |
 | `web_app/src/` | React dashboard UI |
 | `web_app/server/api.js` | Express API serving artifacts |
 | `docs/architecture.md` | Philosophical overview (read this first) |
@@ -378,11 +380,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 ## Notes for AI Agents
 
-- **Storage is in transition**: Check if a capture adapter uses `StorageManager` (new) or `fs.writeFileSync` (legacy).
+- **Storage is in transition**: Check if a capture adapter uses `StorageManager` (new) or `fs.writeFileSync` (legais legacy/unused. CLI now uses RITOps commands
 - **Two databases exist**: SQLite (`data/content-factor.db`) for new pipeline, LowDB (`data/content-factor.json`) for CLI. Don't confuse them.
 - **Always use `.js` extensions in imports**—this is a Node.js ESM requirement, not optional.
 - **Graceful degradation is a feature**—prefer mock data over throwing errors in capture adapters.
-- **Templates return `any`**—this is a known tech debt item (see TODO.md). Validate outputs carefully.
+- **Templates return `any`**—this is a known tech debt item (see [TODO.md](TODO.md)). Validate outputs carefully.
 - **Side-effect imports exist**—`transform.ts` auto-runs on import. Add guards if refactoring.
 - **Artifact class hierarchy**—new captures extend `Artifact` base class; legacy uses plain `ArtifactData` objects.
 - **Web app reads filesystem only**—no SQLite integration in dashboard yet (planned).
+- **RITOps** (Ritual Operations): CLI artifact management system in `bin/ritops/` for standardized operations (adopt, normalize, inspect).
