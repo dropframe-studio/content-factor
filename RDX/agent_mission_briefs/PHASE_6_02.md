@@ -1,3 +1,4 @@
+
 # MISSION BRIEF: PHASE 6 - STEP 02 (SAFETY LOCK)
 **ID**: `2025-12-22_0450_vmrad_p6_s02`
 **Status**: [ INITIALIZED ]
