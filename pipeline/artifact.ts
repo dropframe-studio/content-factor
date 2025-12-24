@@ -23,7 +23,7 @@ export type ArtifactType =
   | 'LINK';
 
 // 2. Define the source from which the artifact was captured.
-export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot';
+export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot' | 'image';
 
 export interface ArtifactMetadata {
   title: string;

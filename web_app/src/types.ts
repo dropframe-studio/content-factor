@@ -7,7 +7,7 @@ export type ArtifactType =
   | 'RAW_COMMIT'
   | 'LINK'
 
-export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot'
+export type ArtifactSource = 'git' | 'manual' | 'ci/cd' | 'api' | 'screenshot' | 'image'
 
 export interface Artifact {
   id: string

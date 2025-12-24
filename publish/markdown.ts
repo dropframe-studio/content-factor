@@ -48,13 +48,7 @@ function renderBuildLog(content: any): string {
     md += `## What I Built\n${content.whatIBuilt}\n\n`;
   }
   
-  // If there's a screenshot, embed it
-  if (content.screenshot) {
-    md += `![Screenshot](/${content.screenshot})\n\n`;
-    if (content.description) {
-      md += `*${content.description}*\n\n`;
-    }
-  }
+  md += renderMediaBlock(content);
   
   if (content.whyItMatters) {
     md += `## Why It Matters\n${content.whyItMatters}\n\n`;
@@ -198,13 +192,7 @@ function renderTeachingMoment(content: any): string {
     md += `## The Solution\n${content.solution}\n\n`;
   }
   
-  // If there's a screenshot, embed it
-  if (content.screenshot) {
-    md += `![Screenshot](/${content.screenshot})\n\n`;
-    if (content.description) {
-      md += `*${content.description}*\n\n`;
-    }
-  }
+  md += renderMediaBlock(content);
   
   if (content.whyThisMatters) {
     md += `## Why This Matters\n${content.whyThisMatters}\n\n`;
@@ -214,5 +202,21 @@ function renderTeachingMoment(content: any): string {
     md += `## Try This\n${content.tryThis}\n\n`;
   }
   
+  return md;
+}
+
+function renderMediaBlock(content: any): string {
+  let md = '';
+
+  if (content.image) {
+    md += `![Image](/${content.image})\n\n`;
+  } else if (content.video) {
+    md += `<video controls src="/${content.video}"></video>\n\n`;
+  }
+
+  if ((content.image || content.video) && content.description) {
+    md += `*${content.description}*\n\n`;
+  }
+
   return md;
 }

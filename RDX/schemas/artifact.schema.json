@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://system.local/schema/artifact.json",
+  "title": "Artifact",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "origin",
+    "asset_policy",
+    "metadata",
+    "lifecycle",
+    "captured_at"
+  ],
+  "properties": {
+
+    "id": {
+      "type": "string",
+      "description": "Globally unique artifact ID (UUID or hash-based)"
+    },
+
+    "type": {
+      "type": "string",
+      "enum": [
+        "document",
+        "annotation",
+        "commit",
+        "link",
+        "screenshot",
+        "audio",
+        "image",
+        "dataset",
+        "other"
+      ],
+      "description": "High-level artifact classification"
+    },
+
+    "origin": {
+      "type": "object",
+      "required": ["system"],
+      "properties": {
+        "system": {
+          "type": "string",
+          "description": "Source system (cli, watcher, api, ui)"
+        },
+        "user": {
+          "type": "string",
+          "description": "User or agent that initiated capture"
+        },
+        "path": {
+          "type": "string",
+          "description": "Original filesystem or URL path"
+        },
+        "device": {
+          "type": "string",
+          "description": "Optional device identifier"
+        }
+      }
+    },
+
+    "content_ref": {
+      "type": ["string", "null"],
+      "description": "Reference to extracted or primary content (text blob, transcript, etc.)"
+    },
+
+    "asset_policy": {
+      "type": "object",
+      "required": ["mode", "checksum"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["store", "pointer", "hybrid"],
+          "description": "How the asset is handled"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why this policy was chosen (size, sensitivity, manual, default)"
+        },
+        "location": {
+          "type": "string",
+          "description": "Storage location or bucket identifier"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "Integrity hash (sha256 recommended)"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+
+    "metadata": {
+      "type": "object",
+      "required": ["title", "created_at"],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the artifact was originally created"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "file, url, system, human"
+            },
+            "identifier": {
+              "type": "string"
+            }
+          }
+        },
+        "intent": {
+          "type": "string",
+          "enum": ["note", "retro", "commentary", "reference", "unknown"],
+          "description": "Semantic intent (important for annotations)"
+        },
+        "threat_level": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high", "strategic"],
+          "description": "Strategic Bolt or risk classification"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "IDs of related artifacts"
+          }
+        }
+      }
+    },
+
+    "metadata_ext": {
+      "type": "object",
+      "description": "Type-specific metadata (non-universal)",
+      "additionalProperties": true
+    },
+
+    "custom": {
+      "type": "object",
+      "description": "User-defined key-value metadata",
+      "additionalProperties": true
+    },
+
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_id", "relation"],
+        "properties": {
+          "target_id": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string",
+            "description": "describes, references, follows, derived_from, etc."
+          }
+        }
+      }
+    },
+
+    "lifecycle": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["active", "archived", "deleted"]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "archived_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the system captured this artifact"
+    }
+  },
+
+  "additionalProperties": false
+}
