@@ -147,6 +147,17 @@ app.get('/api/artifacts/:id', async (req, res) => {
   }
 });
 
+// New Endpoint: GET /api/links
+app.get('/api/links', async (req, res) => {
+  try {
+    const linksPath = join(DATA_DIR, 'links/rsys_core.json'); // (fixed)Note: You named it .ts but it's JSON
+    const content = await readFile(linksPath, 'utf-8');
+    res.json(JSON.parse(content));
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load links registry' });
+  }
+});
+
 /**
  * GET /api/health
  * Health check endpoint

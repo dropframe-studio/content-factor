@@ -380,7 +380,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 ## Notes for AI Agents
 
-- **Storage is in transition**: Check if a capture adapter uses `StorageManager` (new) or `fs.writeFileSync` (legais legacy/unused. CLI now uses RITOps commands
+- **Storage is in transition**: Check if a capture adapter uses `StorageManager` (new) or `fs.writeFileSync` (legacy filesystem pattern).
 - **Two databases exist**: SQLite (`data/content-factor.db`) for new pipeline, LowDB (`data/content-factor.json`) for CLI. Don't confuse them.
 - **Always use `.js` extensions in imports**—this is a Node.js ESM requirement, not optional.
 - **Graceful degradation is a feature**—prefer mock data over throwing errors in capture adapters.

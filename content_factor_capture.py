@@ -1,178 +1,153 @@
 import PySimpleGUI as sg
-import sqlite3
-from datetime import datetime
+import json
 import os
+from datetime import datetime
 
-# === DATABASE SETUP ===
-DB_PATH = 'content_factory_atoms.db'
+# === PATHS ===
+LINKS_JSON_PATH = 'data/links/rsys_core.json'
+ARTIFACTS_DIR = 'data/artifacts'
 
-def init_database():
-    """Initialize the atoms database"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS atoms
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  content TEXT NOT NULL,
-                  atom_type TEXT,
-                  project TEXT,
-                  tags TEXT,
-                  created_at TEXT,
-                  status TEXT DEFAULT 'captured')''')
-    conn.commit()
-    conn.close()
+# Ensure directories exist
+os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 
-def capture_atom(content, atom_type, project, tags):
-    """Store an atom in the database"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""INSERT INTO atoms 
-                 (content, atom_type, project, tags, created_at) 
-                 VALUES (?, ?, ?, ?, ?)""",
-              (content, atom_type, project, tags, datetime.now().isoformat()))
-    conn.commit()
-    atom_id = c.lastrowid
-    conn.close()
-    return atom_id
+# === LOGIC: LINK REGISTRY ===
+def load_rsys_links():
+    """Load the 16-link registry from JSON"""
+    try:
+        with open(LINKS_JSON_PATH, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        # Fallback if file missing
+        return {"links": []}
 
-def get_recent_atoms(limit=10):
-    """Retrieve recent atoms"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""SELECT id, content, atom_type, project, created_at 
-                 FROM atoms 
-                 ORDER BY created_at DESC 
-                 LIMIT ?""", (limit,))
-    rows = c.fetchall()
-    conn.close()
-    return rows
+def save_rsys_links(data):
+    """Save the updated registry back to JSON"""
+    with open(LINKS_JSON_PATH, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def get_atom_count():
-    """Get total atom count"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM atoms")
-    count = c.fetchone()[0]
-    conn.close()
-    return count
+def update_link_coordinates(link_id, coord_type, path, rank):
+    """Adds a new coordinate to a specific link in the neat pile"""
+    data = load_rsys_links()
+    for link in data['links']:
+        if link['link_id'] == link_id:
+            # Ensure the target key exists in coordinates
+            if coord_type not in link['coordinates']:
+                link['coordinates'][coord_type] = []
+            
+            # Append the new 'bull' (string + rank)
+            new_entry = {"path": path, "rank": int(rank) if rank.isdigit() else None}
+            link['coordinates'][coord_type].append(new_entry)
+            save_rsys_links(data)
+            return True
+    return False
+
+# === LOGIC: ARTIFACT CAPTURE ===
+def capture_local_artifact(content, atom_type, link_id, tags):
+    """Saves a standalone JSON artifact to the filesystem"""
+    timestamp = datetime.now()
+    file_id = f"{atom_type.lower()}-{timestamp.strftime('%Y%m%d-%H%M%S')}"
+    
+    artifact = {
+        "id": file_id,
+        "type": atom_type,
+        "link_id": link_id,
+        "createdAt": timestamp.isoformat(),
+        "payload": {
+            "content": content,
+            "tags": [t.strip() for t in tags.split(',')] if tags else []
+        }
+    }
+    
+    file_path = os.path.join(ARTIFACTS_DIR, f"{file_id}.json")
+    with open(file_path, 'w') as f:
+        json.dump(artifact, f, indent=2)
+    return file_id
 
 # === GUI SETUP ===
 sg.theme('DarkGrey13')
 
-# Atom type presets
-ATOM_TYPES = ['Observation', 'Idea', 'Quote', 'Task', 'Insight', 'Note', 'Reference']
-PROJECT_PRESETS = ['VSM School', 'Radiant Seven', 'Content Factory', 'Clearline7', 'Personal']
+# Prep Data for UI
+registry = load_rsys_links()
+LINK_IDS = [l['link_id'] for l in registry['links']]
+COORD_TYPES = ['local_dirs', 'git_repos', 'google_drive', 'notion', 'external_web']
+ATOM_TYPES = ['Observation', 'Insight', 'Task', 'Note', 'Reference']
 
-# Layout
 layout = [
-    [sg.Text('CONTENT FACTORY', font='Courier 18 bold', justification='center', expand_x=True)],
-    [sg.Text('Asset Capture Tool', font='Courier 10', justification='center', expand_x=True)],
+    [sg.Text('CONTENT FACTOR: LINK MASTER', font='Courier 18 bold', expand_x=True, justification='center')],
+    [sg.Text('Universal Inventory & Asset Capture', font='Courier 10', expand_x=True, justification='center')],
     [sg.HorizontalSeparator()],
+
+    # 1. LINK SELECTION & UPDATE
+    [sg.Text('1. MANAGE CORES', font='Courier 11 bold', text_color='#007acc')],
+    [sg.Text('SELECT LINK:', size=(12,1)), sg.Combo(LINK_IDS, key='-LINK-ID-', size=(20,1), enable_events=True),
+     sg.Text('RANK:', size=(5,1)), sg.Input('1', key='-RANK-', size=(5,1))],
     
-    # Content input
-    [sg.Text('ATOM CONTENT:', font='Courier 10 bold')],
-    [sg.Multiline(size=(70, 8), key='-CONTENT-', focus=True, 
-                  font='Courier 11', autoscroll=True)],
+    [sg.Text('ADD COORD:', size=(12,1)), sg.Input(key='-COORD-PATH-', size=(40,1), placeholder_text='URL or Path'),
+     sg.Combo(COORD_TYPES, key='-COORD-TYPE-', default_value='notion', size=(12,1))],
     
-    # Metadata
-    [sg.Text('TYPE:', size=(8,1)), 
-     sg.Combo(ATOM_TYPES, key='-TYPE-', size=(20,1), default_value='Note'),
-     sg.Text('PROJECT:', size=(10,1)), 
-     sg.Combo(PROJECT_PRESETS, key='-PROJECT-', size=(20,1))],
-    
-    [sg.Text('TAGS:', size=(8,1)), 
-     sg.Input(key='-TAGS-', size=(54,1), tooltip='Comma-separated tags')],
-    
+    [sg.Button('UPDATE REGISTRY', size=(15,1), button_color=('white', '#007acc')), sg.Push(), 
+     sg.Text('Status:', font='Courier 9'), sg.Text('Idle', key='-REG-STATUS-', text_color='yellow')],
+
     [sg.HorizontalSeparator()],
+
+    # 2. ATOM CAPTURE
+    [sg.Text('2. CAPTURE ATOM', font='Courier 11 bold', text_color='#2e7d32')],
+    [sg.Multiline(size=(70, 6), key='-CONTENT-', font='Courier 11', placeholder_text='Enter observation or note here...')],
     
-    # Actions
-    [sg.Button('CAPTURE', size=(12,1), bind_return_key=True, button_color=('white', '#2e7d32')),
-     sg.Button('VIEW RECENT', size=(12,1)),
-     sg.Button('CLEAR', size=(12,1)),
-     sg.Push(),
-     sg.Text('', key='-COUNTER-', font='Courier 10', size=(20,1))],
+    [sg.Text('TYPE:', size=(12,1)), sg.Combo(ATOM_TYPES, key='-ATOM-TYPE-', default_value='Observation', size=(20,1)),
+     sg.Text('TAGS:', size=(6,1)), sg.Input(key='-TAGS-', size=(26,1))],
+
+    [sg.Button('CAPTURE ATOM', size=(15,1), button_color=('white', '#2e7d32')), sg.Push(),
+     sg.Button('CLEAR', size=(10,1))],
     
-    [sg.Text('', key='-STATUS-', size=(70,1), font='Courier 10', text_color='yellow')],
-    
-    [sg.HorizontalSeparator()],
-    
-    # Recent atoms display
-    [sg.Text('RECENT CAPTURES:', font='Courier 10 bold')],
-    [sg.Multiline(size=(70, 10), key='-RECENT-', disabled=True, 
-                  font='Courier 9', autoscroll=True, background_color='#1e1e1e')]
+    [sg.Text('', key='-STATUS-', size=(70,1), font='Courier 10 italic', text_color='cyan')],
 ]
 
-# Create window
-window = sg.Window('Content Factory Atom Capture', layout, 
-                   finalize=True, resizable=True)
-
-# Initialize database
-init_database()
-
-# Update counter
-def update_counter():
-    count = get_atom_count()
-    window['-COUNTER-'].update(f'Total Atoms: {count}')
-
-update_counter()
+window = sg.Window('Content Factor v2.0', layout, finalize=True)
 
 # === EVENT LOOP ===
 while True:
     event, values = window.read()
-    
+
     if event == sg.WIN_CLOSED:
         break
-    
-    if event == 'CAPTURE':
+
+    # Action: Update the Registry (The Neat Pile)
+    if event == 'UPDATE REGISTRY':
+        link_id = values['-LINK-ID-']
+        path = values['-COORD-PATH-'].strip()
+        c_type = values['-COORD-TYPE-']
+        rank = values['-RANK-']
+
+        if not link_id or not path:
+            window['-REG-STATUS-'].update('⚠ ID/Path Required')
+            continue
+
+        if update_link_coordinates(link_id, c_type, path, rank):
+            window['-REG-STATUS-'].update(f'✓ {link_id} Updated')
+            window['-COORD-PATH-'].update('')
+        else:
+            window['-REG-STATUS-'].update('❌ Update Failed')
+
+    # Action: Capture Standalone Atom
+    if event == 'CAPTURE ATOM':
         content = values['-CONTENT-'].strip()
-        
         if not content:
             window['-STATUS-'].update('⚠ Content cannot be empty')
             continue
-        
-        atom_type = values['-TYPE-']
-        project = values['-PROJECT-']
-        tags = values['-TAGS-'].strip()
-        
-        # Capture the atom
-        atom_id = capture_atom(content, atom_type, project, tags)
-        
-        # Update status
-        window['-STATUS-'].update(f'✓ Atom #{atom_id} captured at {datetime.now().strftime("%H:%M:%S")}')
-        
-        # Clear inputs
+
+        link_id = values['-LINK-ID-'] or 'GLOBAL'
+        atom_type = values['-ATOM-TYPE-']
+        tags = values['-TAGS-']
+
+        file_id = capture_local_artifact(content, atom_type, link_id, tags)
+        window['-STATUS-'].update(f'✓ Captured {file_id}.json')
         window['-CONTENT-'].update('')
         window['-TAGS-'].update('')
-        window['-CONTENT-'].set_focus()
-        
-        # Update counter
-        update_counter()
-    
-    if event == 'VIEW RECENT':
-        atoms = get_recent_atoms(10)
-        
-        if not atoms:
-            window['-RECENT-'].update('No atoms captured yet.')
-        else:
-            recent_text = []
-            for atom in atoms:
-                atom_id, content, atom_type, project, created = atom
-                timestamp = datetime.fromisoformat(created).strftime('%Y-%m-%d %H:%M')
-                
-                # Truncate content for display
-                display_content = content[:80] + '...' if len(content) > 80 else content
-                
-                recent_text.append(f"[{atom_id}] {timestamp} | {atom_type or 'Note'} | {project or 'N/A'}")
-                recent_text.append(f"    {display_content}")
-                recent_text.append("")
-            
-            window['-RECENT-'].update('\n'.join(recent_text))
-        
-        window['-STATUS-'].update(f'Showing last {len(atoms)} atoms')
-    
+
     if event == 'CLEAR':
-        window['-CONTENT-'].update('')
-        window['-TAGS-'].update('')
-        window['-CONTENT-'].set_focus()
-        window['-STATUS-'].update('Inputs cleared')
+        for key in ['-CONTENT-', '-TAGS-', '-COORD-PATH-']:
+            window[key].update('')
+        window['-STATUS-'].update('Cleared.')
 
 window.close()
